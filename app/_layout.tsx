@@ -1,7 +1,8 @@
 import '@/global.css';
 
 import { NAV_THEME } from '@/lib/theme';
-import { ClerkProvider, useAuth } from '@clerk/clerk-expo';
+import { useRoutesLogic } from '@/hooks/useRoutesLogic';
+import { ClerkProvider } from '@clerk/clerk-expo';
 import { tokenCache } from '@clerk/clerk-expo/token-cache';
 import { ThemeProvider } from '@react-navigation/native';
 import { PortalHost } from '@rn-primitives/portal';
@@ -9,7 +10,6 @@ import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useColorScheme } from 'nativewind';
-import * as React from 'react';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -33,34 +33,28 @@ export default function RootLayout() {
 SplashScreen.preventAutoHideAsync();
 
 function Routes() {
-  const { isSignedIn, isLoaded } = useAuth();
+  const { isAuthenticated, isLoading } = useRoutesLogic();
 
-  React.useEffect(() => {
-    if (isLoaded) {
-      SplashScreen.hideAsync();
-    }
-  }, [isLoaded]);
-
-  if (!isLoaded) {
+  if (isLoading) {
     return null;
   }
 
   return (
     <Stack>
-      {/* Screens only shown when the user is NOT signed in */}
-      <Stack.Protected guard={!isSignedIn}>
+      {/* Auth screens */}
+      <Stack.Protected guard={!isAuthenticated}>
         <Stack.Screen name="(auth)/sign-in" options={SIGN_IN_SCREEN_OPTIONS} />
         <Stack.Screen name="(auth)/sign-up" options={SIGN_UP_SCREEN_OPTIONS} />
         <Stack.Screen name="(auth)/reset-password" options={DEFAULT_AUTH_SCREEN_OPTIONS} />
         <Stack.Screen name="(auth)/forgot-password" options={DEFAULT_AUTH_SCREEN_OPTIONS} />
       </Stack.Protected>
 
-      {/* Screens only shown when the user IS signed in */}
-      <Stack.Protected guard={isSignedIn}>
+      {/* Protected screens */}
+      <Stack.Protected guard={isAuthenticated}>
         <Stack.Screen name="index" />
       </Stack.Protected>
 
-      {/* Screens outside the guards are accessible to everyone (e.g. not found) */}
+      {/* Add more protected screens here as they are added */}
     </Stack>
   );
 }
