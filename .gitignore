@@ -39,3 +39,13 @@ yarn-error.*
 
 expo-env.d.ts
 # @end expo-cli
+
+# ides
+.idea/
+.vscode/
+.cursor/
+
+# env files
+.env
+.env.local
+.env.production
